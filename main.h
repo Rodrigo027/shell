@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define TOKEN_STRING_SIZE 10
 #define ECHO_TOKENS true
@@ -45,7 +46,7 @@ typedef struct argument t_argument;
     
 struct command
 {
-    enum {quit,exit,echo,test,system} type; /* system for not built in commands */
+    enum {quit,exit_command,echo,test,system_command} type; /* system for not built in commands */
     t_argument argument; /* first argument is the name of the command */
     t_token_string a_input; /* empty string when not redirected */
     t_token_string a_output; /* empty string when not redirected */

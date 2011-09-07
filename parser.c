@@ -253,10 +253,10 @@ t_boolean f_get_command(t_token * a_head,t_command * a_command)
     a_argument = &(a_command->argument);
     strcpy(a_argument->a_string,a_token->a_string);
     if(!strcmp(a_argument->a_string,"quit")) a_command->type = quit;
-    else if(!strcmp(a_argument->a_string,"exit")) a_command->type = exit;
+    else if(!strcmp(a_argument->a_string,"exit")) a_command->type = exit_command;
     else if(!strcmp(a_argument->a_string,"echo")) a_command->type = echo;
     else if(!strcmp(a_argument->a_string,"test")) a_command->type = test;
-    else a_command->type = system;
+    else a_command->type = system_command;
     
     /* remove current token and go to the next */
     a_next_token = a_token->a_next;

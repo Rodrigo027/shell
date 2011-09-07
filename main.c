@@ -26,11 +26,11 @@ int main(void)
         {
             switch(command.type)
             {
-                case exit: end = f_exit(command); break;
+                case exit_command: end = f_exit(command); break;
                 case quit: end = f_quit(command); break;
                 case echo: f_echo(command); break;
                 case test: f_test(command); break;
-                case system: f_system(command); break;
+                case system_command: f_system(command); break;
             }
         }
     }
