@@ -85,36 +85,37 @@ void f_identify_tokens(t_token * a_head)
 {
     while(a_head = a_head->a_next)
     {
-        if(!strcmp(a_head->a_string,"|")) a_head->type = pipe;
-        else if(!strcmp(a_head->a_string,"<")) a_head->type = input;
-        else if(!strcmp(a_head->a_string,">")) a_head->type = output;
-        else if(!strcmp(a_head->a_string,">>")) a_head->type = append;
-        else if(!strcmp(a_head->a_string,"&")) a_head->type = background;
-        else a_head->type = word;
+        if(!strcmp(a_head->a_string,"|")) a_head->type = e_pipe;
+        else if(!strcmp(a_head->a_string,"<")) a_head->type = e_input;
+        else if(!strcmp(a_head->a_string,">")) a_head->type = e_output;
+        else if(!strcmp(a_head->a_string,">>")) a_head->type = e_append;
+        else if(!strcmp(a_head->a_string,"&")) a_head->type = e_background;
+        else a_head->type = e_word;
     }
 }
 
 t_boolean f_check_syntax(t_token * a_head)
 {
     t_boolean error = false;
-    token_type expectation = command;
+    token_type expectation = e_command;
     t_boolean have_input = false;
     t_boolean have_output = false;
     t_boolean have_append = false;
     t_boolean have_background = false;
     t_boolean any_command = false;
     t_boolean background_warning = false;
+	t_boolean have_pipe = false;
     
     while(a_head = a_head->a_next)
     {
         switch(expectation)
         {
-            case command:
+            case e_command:
                 switch(a_head->type)
                 {
-                    case word:
-                        a_head->type = command;
-                        expectation = argument;
+                    case e_word:
+                        a_head->type = e_command;
+                        expectation = e_argument;
                         any_command = true;
                         break;
                     default:
@@ -126,30 +127,39 @@ t_boolean f_check_syntax(t_token * a_head)
                         error = true;
                 }
                 break;
-            case argument:
+            case e_argument:
                 switch(a_head->type)
                 {
-                    case word:
-                        a_head->type = argument;
+                    case e_word:
+                        a_head->type = e_argument;
                         break;
-                    case pipe:
-                        expectation = command;
-                        have_input = false;
-                        have_output = false;
-                        have_append = false;
-                        have_background = false;
+                    case e_pipe:
+						if(!have_output)
+						{
+		                    expectation = e_command;
+		                    have_input = false;
+		                    have_output = false;
+		                    have_append = false;
+		                    have_background = false;
+							have_pipe = true;
+						}
+						else
+						{
+                            printf("error> can't redirect output twice\n");
+                            error = true;
+						}
                         break;
-                    case input:
-                        if(have_input)
+                    case e_input:
+                        if(have_input || have_pipe)
                         {
                             printf("error> can't redirect input twice\n");
                             error = true;
                             break;
                         }
                         have_input = true;
-                        expectation = file;
+                        expectation = e_file;
                         break;
-                    case output:
+                    case e_output:
                         if(have_output || have_append)
                         {
                             printf("error> can't redirect output twice\n");
@@ -157,9 +167,9 @@ t_boolean f_check_syntax(t_token * a_head)
                             break;
                         }
                         have_output = true;
-                        expectation = file;
+                        expectation = e_file;
                         break;
-                    case append:
+                    case e_append:
                         if(have_output || have_append)
                         {
                             printf("error> can't redirect output twice\n");
@@ -167,9 +177,9 @@ t_boolean f_check_syntax(t_token * a_head)
                             break;
                         }
                         have_append = true;
-                        expectation = file;
+                        expectation = e_file;
                         break;
-                    case background:
+                    case e_background:
                         if(have_background && !background_warning)
                         {
                             printf("warning> & used more them one time\n");
@@ -179,12 +189,12 @@ t_boolean f_check_syntax(t_token * a_head)
                         break;
                 }
                 break;
-            case file:
+            case e_file:
                 switch(a_head->type)
                 {
-                    case word:
-                        a_head->type = file;
-                        expectation = argument;
+                    case e_word:
+                        a_head->type = e_file;
+                        expectation = e_argument;
                         break;
                     default:
                         printf
@@ -198,15 +208,15 @@ t_boolean f_check_syntax(t_token * a_head)
         }
         if(error) break;
     }
-    if(expectation!=argument)
+    if(expectation != e_argument)
     {
         error = true;
         switch(expectation)
         {
-            case command:
+            case e_command:
                 printf("error> command missing\n");
                 break;
-            case file:
+            case e_file:
                 printf("error> file missing\n");
                 break;
         }
@@ -239,8 +249,9 @@ t_boolean f_get_command(t_token * a_head,t_command * a_command)
     
     if(!a_token) return false;
     
-    if(a_token->type == pipe)
+    if(a_token->type == e_pipe)
     {
+
         a_command->pipe_input = true;
         
         /* remove current token and go to the next */
@@ -252,11 +263,10 @@ t_boolean f_get_command(t_token * a_head,t_command * a_command)
     /* get the command name */
     a_argument = &(a_command->argument);
     strcpy(a_argument->a_string,a_token->a_string);
-    if(!strcmp(a_argument->a_string,"quit")) a_command->type = quit;
-    else if(!strcmp(a_argument->a_string,"exit")) a_command->type = exit_command;
-    else if(!strcmp(a_argument->a_string,"echo")) a_command->type = echo;
-    else if(!strcmp(a_argument->a_string,"test")) a_command->type = test;
-    else a_command->type = system_command;
+    if(!strcmp(a_argument->a_string,"quit")) a_command->type = e_quit;
+    else if(!strcmp(a_argument->a_string,"exit")) a_command->type = e_exit;
+    else if(!strcmp(a_argument->a_string,"test")) a_command->type = e_test;
+    else a_command->type = e_system;
     
     /* remove current token and go to the next */
     a_next_token = a_token->a_next;
@@ -267,7 +277,7 @@ t_boolean f_get_command(t_token * a_head,t_command * a_command)
     {
         switch(a_token->type)
         {
-            case argument:
+            case e_argument:
                 a_argument->a_next = (void *)calloc(1,sizeof(t_argument));
                 a_argument = a_argument->a_next;
                 
@@ -279,7 +289,7 @@ t_boolean f_get_command(t_token * a_head,t_command * a_command)
                 a_token = a_next_token;
                 
                 break;
-            case input:
+            case e_input:
                 /* remove current token and go to the next */
                 a_next_token = a_token->a_next;
                 free(a_token);
@@ -293,7 +303,7 @@ t_boolean f_get_command(t_token * a_head,t_command * a_command)
                 a_token = a_next_token;
                 
                 break;
-            case output:
+            case e_output:
                 /* remove current token and go to the next */
                 a_next_token = a_token->a_next;
                 free(a_token);
@@ -307,7 +317,7 @@ t_boolean f_get_command(t_token * a_head,t_command * a_command)
                 a_token = a_next_token;
                 
                 break;
-            case append:
+            case e_append:
                 /* remove current token and go to the next */
                 a_next_token = a_token->a_next;
                 free(a_token);
@@ -321,7 +331,7 @@ t_boolean f_get_command(t_token * a_head,t_command * a_command)
                 a_token = a_next_token;
                 
                 break;
-            case background:
+            case e_background:
                 a_command->background = true;
             
                 /* remove current token and go to the next */
@@ -330,7 +340,7 @@ t_boolean f_get_command(t_token * a_head,t_command * a_command)
                 a_token = a_next_token;
                 
                 break;
-            case pipe:
+            case e_pipe:
                 /* leave this token for the next command */
                 a_head->a_next = a_token;
                 a_command->pipe_output = true;
@@ -348,15 +358,15 @@ void f_echo_tokens(t_token * a_head)
         printf("parser> %s",a_head->a_string);
         switch(a_head->type)
         {
-            case word: printf("(word)"); break;
-            case command: printf("(command)"); break;
-            case argument: printf("(argument)"); break;
-            case file: printf("(file)"); break;
-            case input: printf("(input)"); break;
-            case output: printf("(output)"); break;
-            case append: printf("(append)"); break;
-            case pipe: printf("(pipe)"); break;
-            case background: printf("(background)"); break;
+            case e_word: printf("(word)"); break;
+            case e_command: printf("(command)"); break;
+            case e_argument: printf("(argument)"); break;
+            case e_file: printf("(file)"); break;
+            case e_input: printf("(input)"); break;
+            case e_output: printf("(output)"); break;
+            case e_append: printf("(append)"); break;
+            case e_pipe: printf("(pipe)"); break;
+            case e_background: printf("(background)"); break;
         }
         putchar('\n');
     }

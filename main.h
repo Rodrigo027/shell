@@ -10,9 +10,18 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define TOKEN_STRING_SIZE 10
-#define ECHO_TOKENS true
-#define ECHO_INPUT true
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#include <unistd.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#define TOKEN_STRING_SIZE 100
+#define ECHO_TOKENS false
+#define ECHO_INPUT false
 
 typedef enum boolean {false,true} t_boolean;
 
@@ -21,7 +30,7 @@ typedef char t_token_string[TOKEN_STRING_SIZE];
 /* word can be a command, argument or file, it is mark for further process */
 typedef enum
 {
-    command,argument,file,word,input,output,append,pipe,background
+    e_command,e_argument,e_file,e_word,e_input,e_output,e_append,e_pipe,e_background
 }
 token_type;
 
@@ -46,7 +55,7 @@ typedef struct argument t_argument;
     
 struct command
 {
-    enum {quit,exit_command,echo,test,system_command} type; /* system for not built in commands */
+    enum {e_quit,e_exit,e_test,e_system} type; /* system for not built in commands */
     t_argument argument; /* first argument is the name of the command */
     t_token_string a_input; /* empty string when not redirected */
     t_token_string a_output; /* empty string when not redirected */
@@ -73,3 +82,4 @@ t_boolean f_quit(t_command command);
 void f_echo(t_command command);
 void f_system(t_command command);
 void f_test(t_command command);
+void f_test2(t_command command);
