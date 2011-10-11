@@ -6,15 +6,18 @@
     n. USP: 6793239
 */
 
+/* Standard C */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
+/* process */
 #include <sys/types.h>
 #include <sys/wait.h>
-
 #include <unistd.h>
 
+
+/* I/O */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -23,63 +26,54 @@
 #define ECHO_TOKENS false
 #define ECHO_INPUT false
 
-typedef enum boolean {false,true} t_boolean;
-
-typedef char t_token_string[TOKEN_STRING_SIZE];
+typedef enum boolean {false,true} boolean;
 
 /* word can be a command, argument or file, it is mark for further process */
-typedef enum
-{
-    e_command,e_argument,e_file,e_word,e_input,e_output,e_append,e_pipe,e_background
-}
-token_type;
+typedef enum{
+    tokenCommand, tokenArgument, tokenFile, tokenWord, tokenInput, tokenOutput,
+	tokenAppend, tokenPipe, tokenBackground
+}tokenType;
 
 /* linked list of tokens, the first token is always invalid (head) */
-struct token
-{
-    token_type type;
-    t_token_string a_string;
-    struct token * a_next;
+struct token{
+    tokenType type;
+    char string[TOKEN_STRING_SIZE];
+    struct token * next;
 };
-
-typedef struct token t_token;
 
 /* linked list of arguments, the first argument is always valid */
-struct argument
-{
-    t_token_string a_string;
-    struct argument * a_next;
+struct argument{
+    char string[TOKEN_STRING_SIZE];
+    struct argument * next;
 };
-
-typedef struct argument t_argument;
     
 struct command
 {
-    enum {e_quit,e_exit,e_test,e_system} type; /* system for not built in commands */
-    t_argument argument; /* first argument is the name of the command */
-    t_token_string a_input; /* empty string when not redirected */
-    t_token_string a_output; /* empty string when not redirected */
-    t_token_string a_append; /* empty string when not redirected */
-    t_boolean pipe_input;
-    t_boolean pipe_output;
-    t_boolean background;
+    enum {commandQuit,commandExit,commandTest,commandSystem} type; /* system for not built in commands */
+    struct argument argument; /* first argument is the name of the command */
+	char input[TOKEN_STRING_SIZE]; /* empty string when not redirected */
+	char output[TOKEN_STRING_SIZE]; /* empty string when not redirected */
+	char append[TOKEN_STRING_SIZE]; /* empty string when not redirected */
+    boolean pipeInput;
+    boolean pipeOutput;
+    boolean background;
 };
 
-
-typedef struct command t_command;
-
 /* parser */
-void f_get_tokens(t_token * a_head);
-void f_identify_tokens(t_token * a_head);
-t_boolean f_check_syntax(t_token * a_head);
-t_boolean f_get_command(t_token * a_head,t_command * a_command); /* returns true when there are one or more commands */
-void f_echo_tokens(t_token * a_head);
-void f_echo_input(t_token * a_head);
+void getTokens(struct token * head);
+void identifyTokens(struct token * head);
+boolean checkSyntax(struct token * head);
+boolean getCommand(struct token * head, struct command * command); /* returns true when there are one or more commands left */
+void echoTokens(struct token * head);
+void echoInput(struct token * head);
 
 /* commands */
-t_boolean f_exit(t_command command);
-t_boolean f_quit(t_command command);
-void f_echo(t_command command);
-void f_system(t_command command);
-void f_test(t_command command);
-void f_test2(t_command command);
+boolean shellExit(struct command command);
+boolean shellQuit(struct command command);
+void pwd(struct command command);
+void cd(struct command command);
+void jobs(struct command command);
+void fg(struct command command);
+void bg(struct command command);
+void shellSystem(struct command command);
+

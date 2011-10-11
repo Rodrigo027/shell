@@ -8,7 +8,7 @@
 
 #include "main.h"
 
-t_boolean f_exit(t_command command)
-{
+boolean shellExit(struct command command){
     return true;
 }
+

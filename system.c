@@ -8,102 +8,88 @@
 
 #include "main.h"
 
-void f_system(t_command command)
-{
+void shellSystem(struct command command){
 	// int fd[2];
 	// pipe(fd);
 
 	/* file descriptors */
-	int fd_input = 0;
-	int fd_output = 0;
-	int fd_append = 0;
+	int fdInput = 0;
+	int fdOutput = 0;
+	int fdAppend = 0;
 
 	/* command arguments array */
-	char ** aa_args;
+	char ** args;
 	int count = 0;
 	int i;
-	t_argument * a_argument;
+	struct argument * argument;
 
 	/* process */
 	pid_t pid;
 	int status;
 
 	/* count number of arguments */
-	a_argument = &(command.argument);
-	while(a_argument)
-	{
+	argument = &(command.argument);
+	while(argument){
 		++count;
-		a_argument = a_argument->a_next;
+		argument = argument->next;
 	}
-	aa_args = (void *)calloc(count+1,sizeof(char *));
-	for(i = 0 ; i < count ; ++i)
-	{
-		aa_args[i] = calloc(TOKEN_STRING_SIZE,sizeof(char));
+	args = (void *)calloc(count+1,sizeof(char *));
+	for(i = 0 ; i < count ; ++i){
+		args[i] = calloc(TOKEN_STRING_SIZE,sizeof(char));
 	}
 
 	/* copy arguments */
 	count = 0;
-	a_argument = &(command.argument);
-	while(a_argument)
-	{
-		strcpy(aa_args[count],a_argument->a_string);
-		a_argument = a_argument->a_next;
+	argument = &(command.argument);
+	while(argument){
+		strcpy(args[count],argument->string);
+		argument = argument->next;
 		++count;
 	}
 
 	pid = fork();
 
-	if(pid < 0) /* erro */
-	{
+	if(pid < 0){ /* erro */
 		printf("error> in %s at line %d\n",__FILE__,__LINE__);
 		exit(1);
 	}
 
-	if(pid == 0) /* filho */
-	{
+	if(pid == 0){ /* filho */
 		// close(fd[0]);
 		// dup2(fd[1],1);
-		if((command.a_input)[0])
-		{
-			fd_input = open(command.a_input, O_RDONLY, 0666);
-			dup2(fd_input,0);printf("hello\n");
+		if((command.input)[0]){
+			fdInput = open(command.input, O_RDONLY, 0666);
+			dup2(fdInput,0);printf("hello\n");
 		}
-		if((command.a_output)[0])
-		{
-			fd_output = open(command.a_output, O_RDWR | O_CREAT | O_TRUNC, 0666);
-			dup2(fd_output,1);
+		if((command.output)[0]){
+			fdOutput = open(command.output, O_RDWR | O_CREAT | O_TRUNC, 0666);
+			dup2(fdOutput,1);
 		}
-		if((command.a_append)[0])
-		{
-			fd_append = open(command.a_append, O_RDWR | O_CREAT | O_APPEND, 0666);
-			dup2(fd_append,1);
+		if((command.append)[0]){
+			fdAppend = open(command.append, O_RDWR | O_CREAT | O_APPEND, 0666);
+			dup2(fdAppend,1);
 		}
-		if(command.pipe_input)
-		{
+		if(command.pipeInput){
 			
 		}
-		if(command.pipe_output)
-		{
+		if(command.pipeOutput){
 			
 		}
-		execvp(aa_args[0],aa_args);
+		execvp(args[0],args);
 	}
 
-	if(pid > 0) /* pai */
-	{
+	if(pid > 0){ /* pai */
 		// close(fd[1]);
 		// dup2(fd[0],0);
-		if(command.background)
-		{
+		if(command.background){
 			waitpid(-1,&status,WNOHANG);
-		}
-		else
-		{
+		}else{
 			wait(&status);
 		}
 	}
 
-	if(fd_input) close(fd_input);
-	if(fd_output) close(fd_input);
-	if(fd_append) close(fd_append);
+	if(fdInput) close(fdInput);
+	if(fdOutput) close(fdOutput);
+	if(fdAppend) close(fdAppend);
 }
+
