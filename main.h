@@ -47,8 +47,7 @@ struct argument{
     struct argument * next;
 };
     
-struct command
-{
+struct command{
     enum {commandQuit,commandExit,commandTest,commandSystem} type; /* system for not built in commands */
     struct argument argument; /* first argument is the name of the command */
 	char input[TOKEN_STRING_SIZE]; /* empty string when not redirected */
