@@ -23,8 +23,8 @@
 #include <fcntl.h>
 
 #define TOKEN_STRING_SIZE 100
-#define ECHO_TOKENS false
-#define ECHO_INPUT false
+#define ECHO_TOKENS true 
+#define ECHO_INPUT true
 
 typedef enum boolean {false,true} boolean;
 

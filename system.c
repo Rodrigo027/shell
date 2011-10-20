@@ -9,8 +9,7 @@
 #include "main.h"
 
 void shellSystem(struct command command){
-	// int fd[2];
-	// pipe(fd);
+	static int fd[2];
 
 	/* file descriptors */
 	int fdInput = 0;
@@ -55,8 +54,6 @@ void shellSystem(struct command command){
 	}
 
 	if(pid == 0){ /* filho */
-		// close(fd[0]);
-		// dup2(fd[1],1);
 		if((command.input)[0]){
 			fdInput = open(command.input, O_RDONLY, 0666);
 			dup2(fdInput,0);printf("hello\n");
@@ -69,18 +66,19 @@ void shellSystem(struct command command){
 			fdAppend = open(command.append, O_RDWR | O_CREAT | O_APPEND, 0666);
 			dup2(fdAppend,1);
 		}
-		if(command.pipeInput){
-			
+		if(command.pipeInput){	
+			close(fd[1]);
+			dup2(fd[0],0);	
 		}
 		if(command.pipeOutput){
-			
+			pipe(fd);
+			close(fd[0]);
+			dup2(fd[1],1);
 		}
 		execvp(args[0],args);
 	}
 
 	if(pid > 0){ /* pai */
-		// close(fd[1]);
-		// dup2(fd[0],0);
 		if(command.background){
 			waitpid(-1,&status,WNOHANG);
 		}else{
