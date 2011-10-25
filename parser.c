@@ -197,7 +197,8 @@ boolean getCommand(struct token * head, struct command * command)
     struct token * nextToken;
     struct argument * argument;
     struct argument * nextArgument;
-    
+	int i;    
+
     /* clear command */
     argument = command->argument.next;
     while(argument)
@@ -207,6 +208,13 @@ boolean getCommand(struct token * head, struct command * command)
         argument = nextArgument;
     }
     command->argument.next = NULL;
+	for(i=0 ; i < command->argNumber ; ++i){
+		free(command->arg[i]);
+	}
+	if(command->argNumber){
+		free(command->arg);
+		command->argNumber = 0;
+	}
     (command->input)[0] = '\0';
     (command->output)[0] = '\0';
     (command->append)[0] = '\0';
@@ -229,7 +237,10 @@ boolean getCommand(struct token * head, struct command * command)
     strcpy(argument->string,token->string);
     if(!strcmp(argument->string,"quit")) command->type = commandQuit;
     else if(!strcmp(argument->string,"exit")) command->type = commandExit;
+    else if(!strcmp(argument->string,"pwd")) command->type = commandPwd;
+    else if(!strcmp(argument->string,"cd")) command->type = commandCd;
     else command->type = commandSystem;
+	command->argNumber += 1;
     
     /* remove current token and go to the next */
     nextToken = token->next;
@@ -241,6 +252,7 @@ boolean getCommand(struct token * head, struct command * command)
             case tokenArgument:
                 argument->next = (void *)calloc(1,sizeof(struct argument));
                 argument = argument->next;
+				command->argNumber += 1;
                 
                 strcpy(argument->string,token->string);
                 
@@ -308,6 +320,19 @@ boolean getCommand(struct token * head, struct command * command)
                 return true;
         }
     }
+
+	/* copy arguments */
+	command->arg = calloc(command->argNumber + 1, sizeof(char *)); /* the last argument must be a null string */
+	for(i=0 ; i < command->argNumber ; ++i){
+		command->arg[i] = calloc(TOKEN_STRING_SIZE, sizeof(char));
+	}
+	argument = &(command->argument);
+	i = 0;
+	while(argument){
+		strcpy(command->arg[i++], argument->string);
+		argument = argument->next;
+	}
+
     head->next = token;
     return true;
 }

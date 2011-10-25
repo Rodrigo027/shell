@@ -48,8 +48,10 @@ struct argument{
 };
     
 struct command{
-    enum {commandQuit,commandExit,commandTest,commandSystem} type; /* system for not built in commands */
+    enum {commandQuit,commandExit,commandTest,commandSystem,commandPwd,commandCd} type; /* system for not built in commands */
     struct argument argument; /* first argument is the name of the command */
+	char ** arg;
+	int argNumber;
 	char input[TOKEN_STRING_SIZE]; /* empty string when not redirected */
 	char output[TOKEN_STRING_SIZE]; /* empty string when not redirected */
 	char append[TOKEN_STRING_SIZE]; /* empty string when not redirected */
