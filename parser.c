@@ -229,6 +229,8 @@ boolean getCommand(struct token * head, struct command * command)
     strcpy(argument->string,token->string);
     if(!strcmp(argument->string,"quit")) command->type = commandQuit;
     else if(!strcmp(argument->string,"exit")) command->type = commandExit;
+    else if(!strcmp(argument->string,"pwd")) command->type = commandPwd;
+    else if(!strcmp(argument->string,"cd")) command->type = commandCd;
     else command->type = commandSystem;
     
     /* remove current token and go to the next */

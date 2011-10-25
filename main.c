@@ -25,6 +25,8 @@ int main(void){
                 case commandExit: end = shellExit(command); break;
                 case commandQuit: end = shellQuit(command); break;
                 case commandSystem: shellSystem(command); break;
+		case commandPwd: pwd(command); break;
+		case commandCd: cd(command); break;
             }
         }
     }
