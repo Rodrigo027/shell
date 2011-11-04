@@ -21,3 +21,4 @@ void cd(struct command command){
     }
     return;
 }
+

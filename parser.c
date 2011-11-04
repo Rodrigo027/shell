@@ -177,7 +177,7 @@ boolean checkSyntax(struct token * head){
         }
         if(error) break;
     }
-    if(expectation != tokenArgument){
+    if(expectation != tokenArgument && anyCommand){
         error = true;
         switch(expectation){
             case tokenCommand:
@@ -191,39 +191,19 @@ boolean checkSyntax(struct token * head){
     return !error;
 }
 
-boolean getCommand(struct token * head, struct command * command)
-{
+boolean getCommand(struct token * head, struct command * command){
     struct token * token = head->next;
     struct token * nextToken;
     struct argument * argument;
-    struct argument * nextArgument;
-	int i;    
+	struct command * nextCommand;
+	int i;
 
-    /* clear command */
-    argument = command->argument.next;
-    while(argument)
-    {
-        nextArgument = argument->next;
-        free(argument);
-        argument = nextArgument;
-    }
-    command->argument.next = NULL;
-	for(i=0 ; i < command->argNumber ; ++i){
-		free(command->arg[i]);
-	}
-	if(command->argNumber){
-		free(command->arg);
-		command->argNumber = 0;
-	}
-    (command->input)[0] = '\0';
-    (command->output)[0] = '\0';
-    (command->append)[0] = '\0';
-    command->background = false;
-    command->pipeInput = false;
-    command->pipeOutput = false;
-    
-    if(!token) return false;
-    
+	if(!token) return false;
+
+	nextCommand = command->next;
+	command = command->next = calloc(1, sizeof(struct command));
+	command->next = nextCommand;
+
     if(token->type == tokenPipe){
         command->pipeInput = true;
         /* remove current token and go to the next */
@@ -239,6 +219,7 @@ boolean getCommand(struct token * head, struct command * command)
     else if(!strcmp(argument->string,"exit")) command->type = commandExit;
     else if(!strcmp(argument->string,"pwd")) command->type = commandPwd;
     else if(!strcmp(argument->string,"cd")) command->type = commandCd;
+	else if(!strcmp(argument->string,"history")) command->type = commandHistory;
     else command->type = commandSystem;
 	command->argNumber += 1;
     
@@ -322,7 +303,7 @@ boolean getCommand(struct token * head, struct command * command)
     }
 
 	/* copy arguments */
-	command->arg = calloc(command->argNumber + 1, sizeof(char *)); /* the last argument must be a null string */
+	command->arg = calloc(command->argNumber + 1, sizeof(char *)); /* the last argument must be null */
 	for(i=0 ; i < command->argNumber ; ++i){
 		command->arg[i] = calloc(TOKEN_STRING_SIZE, sizeof(char));
 	}
@@ -335,6 +316,36 @@ boolean getCommand(struct token * head, struct command * command)
 
     head->next = token;
     return true;
+}
+
+void clearCommand(struct command * command){
+	struct argument * argument;
+	struct argument * nextArgument;
+	struct command * nextCommand;
+	int i;
+
+	command = command->next;
+	while(command){
+
+    	argument = command->argument.next;
+    	while(argument)
+    	{
+        	nextArgument = argument->next;
+        	free(argument);
+        	argument = nextArgument;
+    	}
+
+		for(i=0 ; i < command->argNumber ; ++i){
+			free(command->arg[i]);
+		}
+		if(command->argNumber){
+			free(command->arg);
+		}
+
+		nextCommand = command->next;
+		free(command);
+		command = nextCommand;
+	}
 }
 
 void echoTokens(struct token * head){
@@ -364,5 +375,16 @@ void echoInput(struct token * head)
         }
         putchar('\n');
     }
+}
+
+void clearToken(struct token * token){
+	struct token * nextToken;
+
+	token = token->next;
+	while(token){
+		nextToken = token->next;
+		free(token);
+		token = nextToken;
+	}
 }
 
