@@ -16,15 +16,15 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-
 /* I/O */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
 #define TOKEN_STRING_SIZE 100
-#define ECHO_TOKENS true 
-#define ECHO_INPUT true
+#define ECHO_TOKENS false
+#define ECHO_INPUT false
+#define ECHO_COMMAND false
 
 typedef enum boolean {false,true} boolean;
 
@@ -46,17 +46,26 @@ struct argument{
     char string[TOKEN_STRING_SIZE];
     struct argument * next;
 };
-    
+
+/* linked list of commands, the first command is always invalid (head) */
 struct command{
-    enum {commandQuit,commandExit,commandTest,commandSystem,commandPwd,commandCd} type; /* system for not built in commands */
+    enum {commandQuit,commandExit,commandTest,commandSystem,commandPwd,commandCd,commandHistory} type; /* system for not built in commands */
     struct argument argument; /* first argument is the name of the command */
+	char ** arg;
+	int argNumber;
 	char input[TOKEN_STRING_SIZE]; /* empty string when not redirected */
 	char output[TOKEN_STRING_SIZE]; /* empty string when not redirected */
 	char append[TOKEN_STRING_SIZE]; /* empty string when not redirected */
     boolean pipeInput;
     boolean pipeOutput;
     boolean background;
+	struct command * next;
 };
+
+/* core */
+boolean executeCommand(struct command command);
+boolean executeAsParent(struct command command, int pipeInput, int pipeOutput);
+void executeAsChild(struct command command, int pipeInput, int pipeOutput);
 
 /* parser */
 void getTokens(struct token * head);
@@ -65,6 +74,8 @@ boolean checkSyntax(struct token * head);
 boolean getCommand(struct token * head, struct command * command); /* returns true when there are one or more commands left */
 void echoTokens(struct token * head);
 void echoInput(struct token * head);
+void clearCommand(struct command * command);
+void clearToken(struct token * token);
 
 /* commands */
 boolean shellExit(struct command command);
