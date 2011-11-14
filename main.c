@@ -22,13 +22,20 @@ int main(void){
         if(ECHO_TOKENS) echoTokens(&token);
         if(ECHO_INPUT) echoInput(&token);
         while(getCommand(&token, &command)){
+<<<<<<< HEAD
 			if(ECHO_COMMAND) echoCommand(*(command.next));
+=======
+>>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
 			end = executeCommand(*(command.next));
         }
     }
     while(!end);
 
 	clearToken(&token);
+<<<<<<< HEAD
+=======
+	//finishChildCommand(&command);
+>>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
 	clearCommand(&command);
     
 	return 0;
@@ -36,6 +43,7 @@ int main(void){
 
 boolean executeCommand(struct command command){
 	boolean end = false;
+<<<<<<< HEAD
 	static int nextPipe[2];
 	static int previousPipe[2];
 	int pipeInput;
@@ -49,11 +57,15 @@ boolean executeCommand(struct command command){
 	if(command.pipeInput){
 		pipeInput = previousPipe[0];
 	}
+=======
+	int fd[2];
+>>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
 
 	switch(command.type){
 		case commandExit:
 		case commandQuit:
 		case commandCd:
+<<<<<<< HEAD
 			end = executeAsParent(command, pipeInput, pipeOutput);
 			break;
 		default:
@@ -75,6 +87,18 @@ boolean executeCommand(struct command command){
 }
 
 boolean executeAsParent(struct command command, int pipeInput, int pipeOutput){
+=======
+			end = executeAsParent(command, fd);
+			break;
+		default:
+			executeAsChild(command, fd);
+	}
+
+	return end;
+}
+
+boolean executeAsParent(struct command command, int * fd){
+>>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
 	int fdInput = 0;
 	int fdOutput = 0;
 	int fdAppend = 0;
@@ -94,10 +118,20 @@ boolean executeAsParent(struct command command, int pipeInput, int pipeOutput){
 		dup2(fdAppend, 1);
 	}
 	if(command.pipeInput){
+<<<<<<< HEAD
 		dup2(pipeInput, 0);
 	}
 	if(command.pipeOutput){
 		dup2(pipeOutput, 1);
+=======
+		close(fd[1]);
+		dup2(fd[0], 0);
+	}
+	if(command.pipeOutput){
+		pipe(fd);
+		close(fd[0]);
+		dup2(fd[1], 1);
+>>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
 	}
 
 	switch(command.type){
@@ -119,16 +153,27 @@ boolean executeAsParent(struct command command, int pipeInput, int pipeOutput){
 		close(fdAppend);
 	}
 	if(command.pipeInput){
+<<<<<<< HEAD
 		dup2(0, pipeInput);
 	}
 	if(command.pipeOutput){
 		dup2(1, pipeOutput);
+=======
+		dup2(0, fd[0]);
+	}
+	if(command.pipeOutput){
+		dup2(1, fd[1]);
+>>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
 	}
 
 	return end;
 }
 
+<<<<<<< HEAD
 void executeAsChild(struct command command, int pipeInput, int pipeOutput){
+=======
+void executeAsChild(struct command command, int * fd){
+>>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
 	/* I/O */
 	int fdInput = 0;
 	int fdOutput = 0;
@@ -156,10 +201,20 @@ void executeAsChild(struct command command, int pipeInput, int pipeOutput){
 			dup2(fdAppend,1);
 		}
 		if(command.pipeInput){
+<<<<<<< HEAD
 			dup2(pipeInput,0);
 		}
 		if(command.pipeOutput){
 			dup2(pipeOutput,1);
+=======
+			close(fd[1]);
+			dup2(fd[0],0);
+		}
+		if(command.pipeOutput){
+			pipe(fd);
+			close(fd[0]);
+			dup2(fd[1],1);
+>>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
 		}
 
 		switch(command.type){
