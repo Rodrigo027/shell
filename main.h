@@ -64,13 +64,8 @@ struct command{
 
 /* core */
 boolean executeCommand(struct command command);
-<<<<<<< HEAD
 boolean executeAsParent(struct command command, int pipeInput, int pipeOutput);
 void executeAsChild(struct command command, int pipeInput, int pipeOutput);
-=======
-boolean executeAsParent(struct command command, int * fd);
-void executeAsChild(struct command command, int * fd);
->>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
 
 /* parser */
 void getTokens(struct token * head);

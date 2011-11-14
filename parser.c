@@ -231,12 +231,7 @@ boolean getCommand(struct token * head, struct command * command){
     while(token){
         switch(token->type){
             case tokenArgument:
-<<<<<<< HEAD
                 argument = argument->next = (void *)calloc(1,sizeof(struct argument));
-=======
-                argument->next = (void *)calloc(1,sizeof(struct argument));
-                argument = argument->next;
->>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
 				command->argNumber += 1;
                 
                 strcpy(argument->string,token->string);
@@ -407,7 +402,6 @@ void clearToken(struct token * token){
 	}
 }
 
-<<<<<<< HEAD
 void echoCommand(struct command command){
     struct argument * argument = &(command.argument);
 	int i;
@@ -428,5 +422,3 @@ void echoCommand(struct command command){
     printf("pipe output> %d\n",command.pipeOutput);
 }
 
-=======
->>>>>>> 9f59be43605538ee81fd9d29ac0eeb91a8841103
