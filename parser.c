@@ -195,16 +195,17 @@ boolean getCommand(struct token * head, struct command * command){
     struct token * token = head->next;
     struct token * nextToken;
     struct argument * argument;
-	struct command * nextCommand;
+	struct command * newCommand;
 	int i;
 
 	if(!token) return false;
 
-	nextCommand = command->next;
-	command = command->next = calloc(1, sizeof(struct command));
-	command->next = nextCommand;
+	newCommand = calloc(1, sizeof(struct command));
+	newCommand -> next = command -> next;
+	command -> next = newCommand;
+	command = newCommand;
 
-    if(token->type == tokenPipe){
+	if(token->type == tokenPipe){
         command->pipeInput = true;
         /* remove current token and go to the next */
         nextToken = token->next;
