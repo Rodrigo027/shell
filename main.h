@@ -21,6 +21,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+/* signal */
+#include <signal.h>
+
 #define TOKEN_STRING_SIZE 100
 #define ECHO_TOKENS false
 #define ECHO_INPUT false
@@ -49,23 +52,37 @@ struct argument{
 
 /* linked list of commands, the first command is always invalid (head) */
 struct command{
-    enum {commandQuit,commandExit,commandTest,commandSystem,commandPwd,commandCd,commandHistory} type; /* system for not built in commands */
+
+    enum {
+		commandQuit,commandExit,commandTest,commandSystem,commandPwd,commandCd,
+		commandHistory,commandJobs,commandBg,commandFg
+	} type; /* system for not built in commands */
+
     struct argument argument; /* first argument is the name of the command */
 	char ** arg;
 	int argNumber;
+
+	int id;
+	enum { finish , suspended , running , foreground } status ;
+
 	char input[TOKEN_STRING_SIZE]; /* empty string when not redirected */
 	char output[TOKEN_STRING_SIZE]; /* empty string when not redirected */
 	char append[TOKEN_STRING_SIZE]; /* empty string when not redirected */
     boolean pipeInput;
     boolean pipeOutput;
     boolean background;
+
 	struct command * next;
 };
 
 /* core */
-boolean executeCommand(struct command command);
-boolean executeAsParent(struct command command, int pipeInput, int pipeOutput);
-void executeAsChild(struct command command, int pipeInput, int pipeOutput);
+boolean executeCommand(struct command * command);
+boolean executeAsParent(struct command * command, int pipeInput, int pipeOutput);
+void executeAsChild(struct command * command, int pipeInput, int pipeOutput);
+void terminateHandler(int signalNumber);
+void terminateCommand(struct command * argCommand);
+void stopHandler(int signalNumber);
+void stopCommand(struct command * argCommand);
 
 /* parser */
 void getTokens(struct token * head);
@@ -83,7 +100,7 @@ boolean shellQuit(struct command command);
 void pwd(struct command command);
 void cd(struct command command);
 void jobs(struct command command);
-void fg(struct command command);
-void bg(struct command command);
 void shellSystem(struct command command);
+void bg(struct command headCommand);
+void fg(struct command headCommand);
 

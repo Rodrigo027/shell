@@ -220,6 +220,9 @@ boolean getCommand(struct token * head, struct command * command){
     else if(!strcmp(argument->string,"pwd")) command->type = commandPwd;
     else if(!strcmp(argument->string,"cd")) command->type = commandCd;
 	else if(!strcmp(argument->string,"history")) command->type = commandHistory;
+	else if(!strcmp(argument->string,"jobs")) command->type = commandJobs;
+	else if(!strcmp(argument->string,"bg")) command->type = commandBg;
+	else if(!strcmp(argument->string,"fg")) command->type = commandFg;
     else command->type = commandSystem;
 	command->argNumber += 1;
     
@@ -286,6 +289,7 @@ boolean getCommand(struct token * head, struct command * command){
                 break;
             case tokenBackground:
                 command->background = true;
+				command->status = running;
             
                 /* remove current token and go to the next */
                 nextToken = token->next;

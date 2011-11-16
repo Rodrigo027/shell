@@ -1,0 +1,6 @@
+printf("%d\n",getpgid(getppid()));
+	temp = setsid();
+	printf("%d\n",temp);
+	setpgid(getpgid(getppid()),getpgid(getpid()));
+	tcsetpgrp(0,getpgid(getpid()));
+	printf("%d\n",getpgid(getppid()));
