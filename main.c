@@ -115,6 +115,8 @@ boolean executeCommand(struct command * command){
 	static int previousPipe[2];
 	int pipeInput;
 	int pipeOutput;
+	pid_t pipeGroup;
+	boolean pipes;
 
 	if(command->pipeOutput){
 		pipe(nextPipe);
@@ -142,6 +144,18 @@ boolean executeCommand(struct command * command){
 
 	if(command->pipeInput){
 		close ( previousPipe[0] );
+	}
+
+	if(command->pipeInput || command->pipeOutput){
+		if(pipes){
+			setpgid(command->id,pipeGroup);
+		} else {
+			setpgid(command->id,command->id);
+			pipeGroup = command->id;
+			pipes = true;
+		}
+	} else {
+		pipes = false;
 	}
 
 	previousPipe[0] = nextPipe[0] ;
