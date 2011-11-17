@@ -14,7 +14,7 @@ void fg(struct command headCommand){
 	int id;
 
 	if(headCommand.argNumber != 2 || (!sscanf(headCommand.argument.next->string,"%d",&id))){
-		printf("error> expected \"fg processNumber\", but found: ");
+		printf("error> expected \"fg process number\", but found: ");
 		argument = & ( headCommand . argument ) ;
 		while ( argument ) {
 			printf("%s ",argument->string);
