@@ -1,0 +1,49 @@
+Nome: Rodrigo Fernandes da Costa
+n. USP: 6793073
+
+Nome: Lucas de Moraes Franco
+n. USP: 6793239
+
+Implemetação de uma Shell
+Prof: Marcelo Honorato Marleta
+Sistemas Operacionais II - SCE136
+ICMC - USP
+
+1- Introducão a estrutura do Shell
+	Em main.c temos um loop que é responsável ler os comandos e executálos. A função main apenas armazena os comandos e limpa a memória no final, funções auxiliares tratam sinais, redirecionamento de arquivo e pipes.
+    Ainda em main.c os comandos podem ser executados tanto no processo pai, como o exit, quanto em processo filho, como programas externos. Também é tratado programas em background e seu status é atualizado com o tratamento de sinais.
+
+       Todos os comandos built-in estão em um arquivo separado e todos além de compartilhar o mesmo header main.h foram transformados em bibliotecas dinâmicas.
+
+2.a- Características Implementadas
+	-Controle de versão pelo github
+	-Execução simples de comandos
+	-Background
+	-Foreground
+	-Suspensão de processos(Ctrl+Z)
+	-Redirecionamento de Entrada/Saida
+	-Pipes
+	-Exit
+	-Jobs
+	-Kill
+	-fg
+	-bg
+	-pwd
+	-cd
+	-Makefile
+	-Bibliotecas
+	-History(comando history)
+	-No comando echo, foi implementado de modo que se colocar os argumentos entre aspas, por exemplo:
+	shell> echo ¨Hello     World¨
+	os espaços também serão passados como argumnetos, tendo como saída:
+	shell> Hello     World	
+
+2.b- Carcterísticas Parcialmente Implementadas
+	-No comando onde se passam o numero do processo(fg, bg, kill), não se precisa colocar o % na frente do numero do projeto.
+	
+2.c- Características Não Implementadas
+	-Na questão de concorrências de processos, essa questão em nossa shell foi implementada com uma lista ligada onde se encontram os processos, e por isso foi conseguido um modo onde não se dará esse problema.
+
+3- Como o programa foi testado
+	Todos os comandos que eram para serem implementados foram testados, em foreground, background, em pipes, em redirecionamentos de saida, entre outros.
+	Também foram testados os comandos já implementados pela shell do linux. 
