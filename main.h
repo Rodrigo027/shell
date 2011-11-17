@@ -24,6 +24,9 @@
 /* signal */
 #include <signal.h>
 
+/* lib */
+#include <dlfcn.h>
+
 #define TOKEN_STRING_SIZE 100
 #define ECHO_TOKENS false
 #define ECHO_INPUT false
@@ -55,7 +58,7 @@ struct command{
 
     enum {
 		commandQuit,commandExit,commandTest,commandSystem,commandPwd,commandCd,
-		commandHistory,commandJobs,commandBg,commandFg
+		commandHistory,commandJobs,commandBg,commandFg,commandKill
 	} type; /* system for not built in commands */
 
     struct argument argument; /* first argument is the name of the command */
@@ -79,6 +82,8 @@ struct command{
 boolean executeCommand(struct command * command);
 boolean executeAsParent(struct command * command, int pipeInput, int pipeOutput);
 void executeAsChild(struct command * command, int pipeInput, int pipeOutput);
+
+/* sinais */
 void terminateHandler(int signalNumber);
 void terminateCommand(struct command * argCommand);
 void stopHandler(int signalNumber);
@@ -103,4 +108,5 @@ void jobs(struct command command);
 void shellSystem(struct command command);
 void bg(struct command headCommand);
 void fg(struct command headCommand);
+void shellKill(struct command command);
 
